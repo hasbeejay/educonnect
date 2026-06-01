@@ -1,0 +1,3 @@
+C:\Users\Haseeb\Desktop\EduConnect\wwwroot\images\admin.jpg
+C:\Users\Haseeb\Desktop\EduConnect\wwwroot\images\faculty.jpg
+C:\Users\Haseeb\Desktop\EduConnect\wwwroot\images\student.jpg
