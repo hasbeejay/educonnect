@@ -41,15 +41,15 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="mb-3">
-                            <i class="bi bi-shield-check me-2"></i>Admins
+                            <i class="bi bi-shield-check me-2"></i>Faculty
                         </h5>
 
-                        <label class="form-label fw-semibold">Message for Admins</label>
-                        <textarea class="form-control"
-                                  rows="6"
-                                  placeholder="Write message for admins..."
-                                      @bind="_adminText">
-                    </textarea>
+                        <label class="form-label fw-semibold">Message for Faculty</label>
+                            <textarea class="form-control"
+                                      rows="6"
+                                      placeholder="Write message for Faculty..."
+                                          @bind="_facultyText">
+                        </textarea>
                         </div>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
             <div class="form-check mt-3">
                 <input id="all" class="form-check-input" type="checkbox" @bind="_sendToAll" />
                 <label class="form-check-label fw-semibold" for="all">
-                    Send both messages to ALL users (Students + Faculty + Admins)
+                    Send both messages to ALL users (Students + Faculty)
                 </label>
             </div>
 
@@ -78,7 +78,7 @@
 @code {
 
     string _studentText = "";
-    string _adminText = "";
+    string _facultyText = "";
     bool _sendToAll;
 
     string? _message;
@@ -87,7 +87,7 @@
     bool Disabled =>
         !_sendToAll &&
         string.IsNullOrWhiteSpace(_studentText) &&
-        string.IsNullOrWhiteSpace(_adminText);
+        string.IsNullOrWhiteSpace(_facultyText);
 
     void Send()
     {
@@ -95,24 +95,21 @@
 
         foreach (var u in users)
         {
+            // Only target Students and Faculty
+            if (!(u is Student) && !(u is Faculty)) continue;
+
             if (_sendToAll)
             {
-                NotifSvc.AddNotification(_studentText, NotificationType.Announcement, u.Id);
-                NotifSvc.AddNotification(_adminText, NotificationType.Announcement, u.Id);
+                if (!string.IsNullOrWhiteSpace(_studentText)) NotifSvc.AddNotification(_studentText, NotificationType.Announcement, u.Id);
+                if (!string.IsNullOrWhiteSpace(_facultyText)) NotifSvc.AddNotification(_facultyText, NotificationType.Announcement, u.Id);
             }
             else
             {
                 if (u is Student && !string.IsNullOrWhiteSpace(_studentText))
                     NotifSvc.AddNotification(_studentText, NotificationType.Announcement, u.Id);
 
-                if (u is Admin && !string.IsNullOrWhiteSpace(_adminText))
-                    NotifSvc.AddNotification(_adminText, NotificationType.Announcement, u.Id);
-
-                if (u is Faculty && _sendToAll)
-                {
-                    NotifSvc.AddNotification(_studentText, NotificationType.Announcement, u.Id);
-                    NotifSvc.AddNotification(_adminText, NotificationType.Announcement, u.Id);
-                }
+                if (u is Faculty && !string.IsNullOrWhiteSpace(_facultyText))
+                    NotifSvc.AddNotification(_facultyText, NotificationType.Announcement, u.Id);
             }
         }
 
@@ -120,7 +117,7 @@
         _alert = AlertBox.AlertType.Success;
 
         _studentText = "";
-        _adminText = "";
+        _facultyText = "";
         _sendToAll = false;
     }
 }
