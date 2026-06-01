@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/hasbeejay/Desktop/Assignments/EduConnect/EduConnect.csproj": {}
+    "/Users/hasbeejay/Desktop/Github Repos/educonnect/EduConnect.csproj": {}
   },
   "projects": {
-    "/Users/hasbeejay/Desktop/Assignments/EduConnect/EduConnect.csproj": {
+    "/Users/hasbeejay/Desktop/Github Repos/educonnect/EduConnect.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/hasbeejay/Desktop/Assignments/EduConnect/EduConnect.csproj",
+        "projectUniqueName": "/Users/hasbeejay/Desktop/Github Repos/educonnect/EduConnect.csproj",
         "projectName": "EduConnect",
-        "projectPath": "/Users/hasbeejay/Desktop/Assignments/EduConnect/EduConnect.csproj",
+        "projectPath": "/Users/hasbeejay/Desktop/Github Repos/educonnect/EduConnect.csproj",
         "packagesPath": "/Users/hasbeejay/.nuget/packages/",
-        "outputPath": "/Users/hasbeejay/Desktop/Assignments/EduConnect/obj/",
+        "outputPath": "/Users/hasbeejay/Desktop/Github Repos/educonnect/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/hasbeejay/.nuget/NuGet/NuGet.Config"

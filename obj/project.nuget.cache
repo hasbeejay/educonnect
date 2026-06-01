@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "rzTCP89YyXc=",
+  "dgSpecHash": "XW+VaaTzyGQ=",
   "success": true,
-  "projectFilePath": "/Users/hasbeejay/Desktop/Assignments/EduConnect/EduConnect.csproj",
+  "projectFilePath": "/Users/hasbeejay/Desktop/Github Repos/educonnect/EduConnect.csproj",
   "expectedPackageFiles": [
     "/Users/hasbeejay/.nuget/packages/microsoft.aspnetcore.app.internal.assets/10.0.8/microsoft.aspnetcore.app.internal.assets.10.0.8.nupkg.sha512",
     "/Users/hasbeejay/.nuget/packages/microsoft.data.sqlite.core/8.0.0/microsoft.data.sqlite.core.8.0.0.nupkg.sha512",

@@ -9,31 +9,29 @@ namespace EduConnect.Services
     /// </summary>
     public class AuthStateService
     {
-        private readonly Data.EduConnectContext _db;
-
         public AuthState State { get; private set; } = new();
         public event Action? OnAuthChanged;
 
-        public AuthStateService(Data.EduConnectContext db) => _db = db;
+        public AuthStateService() { }
 
         public bool Login(string email, string password)
         {
             var em = email.Trim();
-            var admin = _db.Admins.FirstOrDefault(a => a.Email == em && a.PasswordHash == password);
+            var admin = SeedData.Users.OfType<Admin>().FirstOrDefault(a => a.Email == em && a.PasswordHash == password);
             if (admin != null)
             {
                 State.CurrentUser = admin;
                 OnAuthChanged?.Invoke();
                 return true;
             }
-            var faculty = _db.Faculty.FirstOrDefault(f => f.Email == em && f.PasswordHash == password);
+            var faculty = SeedData.Users.OfType<Faculty>().FirstOrDefault(f => f.Email == em && f.PasswordHash == password);
             if (faculty != null)
             {
                 State.CurrentUser = faculty;
                 OnAuthChanged?.Invoke();
                 return true;
             }
-            var student = _db.Students.FirstOrDefault(s => s.Email == em && s.PasswordHash == password);
+            var student = SeedData.Users.OfType<Student>().FirstOrDefault(s => s.Email == em && s.PasswordHash == password);
             if (student != null)
             {
                 State.CurrentUser = student;
