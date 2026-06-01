@@ -1,0 +1,130 @@
+@page "/admin/courses"
+@inject ICourseService CourseSvc
+
+<AuthGuard RequiredRole="Admin">
+    <div class="role-header">
+        <div class="d-flex align-items-center">
+            <div class="role-icon"><i class="bi bi-journal-bookmark-fill"></i></div>
+            <div class="ms-3">
+                <h2 class="mb-1">Course Management</h2>
+                <p class="mb-0 text-muted">Add, edit and remove course offerings</p>
+            </div>
+        </div>
+    </div>
+
+    <AlertBox Message="@_message" Type="@_alert" />
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-@(_editing ? "pencil-square" : "plus-circle") me-1"></i>
+            @(_editing ? "Edit course" : "Add new course")
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label class="form-label">Code</label>
+                    <input class="form-control" placeholder="CS-101" @bind="_course.Code" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Title</label>
+                    <input class="form-control" placeholder="Course title" @bind="_course.Title" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Credits</label>
+                    <input type="number" class="form-control" @bind="_course.CreditHours" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Max capacity</label>
+                    <input type="number" class="form-control" @bind="_course.MaxCapacity" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="form-check">
+                        <input id="active" class="form-check-input" type="checkbox" @bind="_course.IsActive" />
+                        <label for="active" class="form-check-label">Active</label>
+                    </div>
+                </div>
+                <div class="col-12 d-flex gap-2">
+                    <button class="btn btn-primary" @onclick="Save">
+                        <i class="bi bi-@(_editing ? "check2-circle" : "plus-circle")"></i>
+                        @(_editing ? "Update course" : "Add course")
+                    </button>
+                    @if (_editing)
+                    {
+                        <button class="btn btn-outline-secondary" @onclick="Reset">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Title</th>
+                    <th class="text-center">Credits</th>
+                    <th class="text-center">Enrolled / Max</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in CourseSvc.GetAll())
+                {
+                    <tr>
+                        <td class="fw-semibold text-primary">@c.Code</td>
+                        <td>@c.Title</td>
+                        <td class="text-center">@c.CreditHours</td>
+                        <td class="text-center">@c.Enrolled.Count / @c.MaxCapacity</td>
+                        <td><StatusBadge Status="@c.EnrollmentStatus.ToString()" /></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-warning me-1" @onclick="() => Edit(c)" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(c.Id)" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</AuthGuard>
+
+@code {
+    Course _course = new() { IsActive = true, CreditHours = 3, MaxCapacity = 25 };
+    bool _editing;
+    string? _message;
+    AlertBox.AlertType _alert = AlertBox.AlertType.Info;
+
+    void Save()
+    {
+        try
+        {
+            if (_editing) CourseSvc.Update(_course); else CourseSvc.Add(_course);
+            _message = _editing ? "Course updated." : "Course added.";
+            _alert = AlertBox.AlertType.Success;
+            Reset();
+        }
+        catch (Exception ex) { _message = ex.Message; _alert = AlertBox.AlertType.Error; }
+    }
+
+    void Edit(Course c)
+    {
+        _editing = true;
+        _course = new Course { Id = c.Id, Code = c.Code, Title = c.Title, CreditHours = c.CreditHours,
+            MaxCapacity = c.MaxCapacity, IsActive = c.IsActive, AssignedFacultyId = c.AssignedFacultyId, Enrolled = c.Enrolled };
+    }
+
+    void Delete(Guid id)
+    {
+        try { CourseSvc.Delete(id); _message = "Course deleted."; _alert = AlertBox.AlertType.Success; }
+        catch (Exception ex) { _message = ex.Message; _alert = AlertBox.AlertType.Error; }
+    }
+
+    void Reset() { _editing = false; _course = new Course { IsActive = true, CreditHours = 3, MaxCapacity = 25 }; }
+}

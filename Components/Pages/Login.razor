@@ -1,0 +1,444 @@
+@page "/login"
+@layout EmptyLayout
+@using EduConnect.Services
+@using EduConnect.Models
+@inject AuthStateService AuthState
+@inject NavigationManager Nav
+
+<AuthGuard RequireAuth="false">
+
+    <div class="auth-shell">
+
+        <div class="auth-container">
+
+            <!-- LEFT SIDE -->
+            <div class="auth-left">
+                <h2>ALTIS LEARNING</h2>
+                <p>Air Learning & Teaching Information System</p>
+
+                <img src="https://cdn-icons-png.flaticon.com/512/2942/2942789.png" alt="Study Group" />
+                <div>
+                    <button class="back-btn" @onclick='() => Nav.NavigateTo("/")'>
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- RIGHT SIDE -->
+            <div class="auth-right">
+
+                <div class="auth-header">
+                    <h4><i class="bi bi-mortarboard-fill me-2"></i>Welcome back</h4>
+                    <p>Sign in to your EduConnect account</p>
+                </div>
+
+                <div class="auth-body">
+
+                    <!-- EMAIL -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input id="email" type="email"
+                               @bind="loginModel.Email" @bind:event="oninput"
+                               @onblur="() => emailTouched = true"
+                               class="form-control @(emailTouched && string.IsNullOrEmpty(loginModel.Email) ? "is-invalid" : "")"
+                               placeholder="you@educonnect.edu" />
+                        
+                        @if (emailTouched && string.IsNullOrEmpty(loginModel.Email))
+                        {
+                            <div class="invalid-feedback">Email is required</div>
+                        }
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input id="password" type="password"
+                               @bind="loginModel.Password" @bind:event="oninput"
+                               @onblur="() => passwordTouched = true"
+                               class="form-control @(passwordTouched && string.IsNullOrEmpty(loginModel.Password) ? "is-invalid" : "")"
+                               placeholder="Enter your password" />
+
+                        @if (passwordTouched && string.IsNullOrEmpty(loginModel.Password))
+                        {
+                            <div class="invalid-feedback">Password is required</div>
+                        }
+                    </div>
+
+                    <!-- LOGIN BUTTON -->
+                    <button type="button"
+                            class="btn btn-primary w-100 btn-lg mb-3"
+                            disabled="@isLoggingIn"
+                            @onclick="HandleLogin">
+
+                        @if (isLoggingIn)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <span>Signing in…</span>
+                        }
+                        else
+                        {
+                            <span>LOGIN</span>
+                        }
+                    </button>
+
+
+                    <!-- ERROR -->
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger mb-3">
+                            @errorMessage
+                        </div>
+                    }
+
+                    <hr />
+
+                    <!-- DEMO BUTTONS -->
+                    <div class="demo-section">
+                        <p>Quick Demo Access</p>
+
+                        <div class="demo-buttons">
+                            <button @onclick='() => FillDemo("uzair@student.edu.pk", "student123")'>Student</button>
+                            <button @onclick='() => FillDemo("haseeb@edu.pk", "admin123")'>Admin</button>
+                            <button @onclick='() => FillDemo("taimur@edu.pk", "faculty123")'>Faculty</button>
+                            
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</AuthGuard>
+
+<style>
+    /* =========================
+       GLOBAL LAYOUT (LIQUID GLASS LOGIN)
+       ========================= */
+
+    .auth-shell {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: url('/images/login.jpg') no-repeat center center;
+        background-size: cover;
+        background-attachment: fixed;
+        font-family: 'Segoe UI', sans-serif;
+        position: relative;
+        overflow: hidden;
+    }
+
+        /* Dark overlay for readability */
+        .auth-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 0;
+        }
+
+    /* =========================
+       MAIN CONTAINER (GLASS CARD)
+       ========================= */
+
+    .auth-container {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        width: 850px;
+        border-radius: 20px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+        /* soft glow aura */
+        .auth-container::after {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, rgba(91,108,255,0.25), rgba(255,101,63,0.15));
+            filter: blur(25px);
+            z-index: -1;
+        }
+
+    /* =========================
+       LEFT PANEL (GLASS DARK)
+       ========================= */
+
+    .auth-left {
+        flex: 1;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        background: rgba(20, 22, 40, 0.45);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-right: 1px solid rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        position: relative;
+        z-index: 2;
+    }
+
+        .auth-left h2 {
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .auth-left p {
+            opacity: 0.75;
+            margin-bottom: 30px;
+        }
+
+        .auth-left img {
+            width: 240px;
+            align-self: center;
+        }
+
+    /* =========================
+       RIGHT PANEL (LIGHT GLASS)
+       ========================= */
+
+    .auth-right {
+        flex: 1;
+        padding: 40px;
+        background: rgba(245, 247, 251, 0.78);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        position: relative;
+        z-index: 2;
+    }
+
+    /* =========================
+       HEADER
+       ========================= */
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+        .auth-header h4 {
+            color: #2a2d45;
+            font-weight: 600;
+        }
+
+        .auth-header p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+    /* =========================
+       LABELS
+       ========================= */
+
+    .form-label {
+        color: #444;
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+
+    /* =========================
+       INPUTS
+       ========================= */
+
+    .form-control {
+        width: 100%;
+        border-radius: 25px;
+        padding: 12px 16px;
+        background: #ffffff;
+        border: 1px solid #d0d5dd;
+        color: #1a1a1a;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+        .form-control::placeholder {
+            color: #8a8f98;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #5b6cff;
+            box-shadow: 0 0 0 3px rgba(91, 108, 255, 0.15);
+        }
+
+    /* validation */
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+
+    /* =========================
+       BUTTON
+       ========================= */
+
+    .btn-primary {
+        width: 100%;
+        border-radius: 25px;
+        padding: 12px;
+        background: linear-gradient(135deg, #5b6cff, #4a54e1);
+        border: none;
+        color: #ffffff;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(91, 108, 255, 0.35);
+        }
+
+    /* =========================
+       ERROR
+       ========================= */
+
+    .alert-danger {
+        border-radius: 10px;
+        font-size: 0.9rem;
+    }
+
+    /* =========================
+       DEMO SECTION
+       ========================= */
+
+    .demo-section {
+        text-align: center;
+    }
+
+        .demo-section p {
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+    .demo-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+        .demo-buttons button {
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            background: #e4e7ff;
+            color: #2a2d45;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .demo-buttons button:hover {
+                background: #5b6cff;
+                color: #ffffff;
+            }
+
+    /* =========================
+       BACK BUTTON
+       ========================= */
+
+    .back-btn {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        }
+
+    /* =========================
+       SAFETY LAYER FIX (click issues)
+       ========================= */
+
+    .auth-left,
+    .auth-right {
+        position: relative;
+        z-index: 2;
+        pointer-events: auto;
+    }
+</style>
+
+@code {
+    private LoginModel loginModel = new();
+    private bool isLoggingIn = false;
+    private string? errorMessage;
+    private bool emailTouched = false;
+    private bool passwordTouched = false;
+
+    private class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    private async Task HandleLogin()
+    {
+        emailTouched = true;
+        passwordTouched = true;
+
+        if (string.IsNullOrEmpty(loginModel.Email) || string.IsNullOrEmpty(loginModel.Password))
+        {
+            errorMessage = "Please fill in all required fields.";
+            return;
+        }
+
+        isLoggingIn = true;
+        errorMessage = null;
+
+        try
+        {
+            await Task.Delay(300);
+            var success = AuthState.Login(loginModel.Email, loginModel.Password);
+
+            if (success)
+                Nav.NavigateTo("/dashboard");
+            else
+                errorMessage = "Invalid email or password.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoggingIn = false;
+        }
+    }
+
+    private void FillDemo(string email, string password)
+    {
+        loginModel.Email = email;
+        loginModel.Password = password;
+        errorMessage = null;
+    }
+}
+
+

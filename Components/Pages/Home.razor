@@ -1,0 +1,103 @@
+@page "/"
+@layout EmptyLayout
+@using EduConnect.Services
+@using EduConnect.Models
+@inject AuthStateService AuthState
+@inject NavigationManager Nav
+
+<AuthGuard RequireAuth="false">
+
+    <div class="home-shell">
+
+        <div class="home-overlay"></div>
+
+        <div class="home-container">
+
+            <!-- HERO -->
+            <div class="home-card">
+
+                <h1>ALTIS–EduConnect</h1>
+
+                <p class="subtitle">
+                    Air Teaching & Learning Information System
+                </p>
+
+                <p class="description">
+                    A unified academic platform designed for modern universities —
+                    managing courses, faculty, students, grades, and communication in one intelligent system.
+                </p>
+
+                <a href="/login" class="home-btn">Login to Continue</a>
+
+            </div>
+
+            <!-- FEATURE CARDS -->
+            <div class="features-section">
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎓</div>
+                    <h3>Academic Tracking</h3>
+                    <p>Monitor CGPA, semester progress, and performance trends.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Grades & Results</h3>
+                    <p>View grades, feedback, and detailed performance analytics.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Course Management</h3>
+                    <p>Enroll, manage courses, and track academic progress easily.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Smart Notifications</h3>
+                    <p>Stay updated with announcements and important alerts.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">👨‍🏫</div>
+                    <h3>Faculty Tools</h3>
+                    <p>Manage classes, upload grades, and communicate with students.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>Admin Control</h3>
+                    <p>Full system oversight with user and data management tools.</p>
+                </div>
+           
+            </div>
+
+        </div>
+
+    </div>
+    <!-- FOOTER / BOTTOM BAR -->
+    <div class="home-footer">
+        <p>© 2026 ALTIS–EduConnect · Air Teaching & Learning Information System</p>
+        <p class="footer-names">
+            Developed by Haseeb Jalil · Taimur Sajid · Muhammad Uzair
+        </p>
+    </div>
+
+</AuthGuard>
+@code {
+    protected override void OnInitialized()
+    {
+        if (AuthState.State.IsAuthenticated)
+        {
+            var path = AuthState.State.CurrentUser switch
+            {
+                global::EduConnect.Models.Admin => "/admin/dashboard",
+                global::EduConnect.Models.Faculty => "/faculty/dashboard",
+                global::EduConnect.Models.Student => "/student/dashboard",
+                _ => "/login"
+            };
+
+            Nav.NavigateTo(path);
+        }
+    }
+}

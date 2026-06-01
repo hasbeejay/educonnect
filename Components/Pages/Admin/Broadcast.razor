@@ -1,0 +1,166 @@
+@page "/admin/notifications"
+@inject NotificationService NotifSvc
+
+<AuthGuard RequiredRole="Admin">
+
+    <div class="role-header">
+        <div class="d-flex align-items-center">
+            <div class="role-icon"><i class="bi bi-megaphone-fill"></i></div>
+            <div class="ms-3">
+                <h2 class="mb-1">Broadcast Center</h2>
+                <p class="mb-0 text-muted">Send targeted announcements to different roles</p>
+            </div>
+        </div>
+    </div>
+
+    <AlertBox Message="@_message" Type="@_alert" />
+
+    <!-- MESSAGES SIDE BY SIDE -->
+    <div class="row g-3">
+
+        <!-- STUDENTS MESSAGE -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="mb-3">
+                        <i class="bi bi-mortarboard me-2"></i>Students
+                    </h5>
+
+                    <label class="form-label fw-semibold">Message for Students</label>
+                    <textarea class="form-control"
+                              rows="6"
+                              placeholder="Write message for students..."
+                                  @bind="_studentText">
+                    </textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMINS MESSAGE -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="mb-3">
+                            <i class="bi bi-shield-check me-2"></i>Admins
+                        </h5>
+
+                        <label class="form-label fw-semibold">Message for Admins</label>
+                        <textarea class="form-control"
+                                  rows="6"
+                                  placeholder="Write message for admins..."
+                                      @bind="_adminText">
+                    </textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SEND TO ALL -->
+            <div class="form-check mt-3">
+                <input id="all" class="form-check-input" type="checkbox" @bind="_sendToAll" />
+                <label class="form-check-label fw-semibold" for="all">
+                    Send both messages to ALL users (Students + Faculty + Admins)
+                </label>
+            </div>
+
+            <!-- SEND BUTTON -->
+            <div class="mt-4">
+                <button class="btn btn-primary px-4"
+                        disabled="@Disabled"
+                        @onclick="Send">
+                    <i class="bi bi-send me-1"></i> Send Broadcast
+                </button>
+            </div>
+
+        </AuthGuard>
+
+@code {
+
+    string _studentText = "";
+    string _adminText = "";
+    bool _sendToAll;
+
+    string? _message;
+    AlertBox.AlertType _alert = AlertBox.AlertType.Info;
+
+    bool Disabled =>
+        !_sendToAll &&
+        string.IsNullOrWhiteSpace(_studentText) &&
+        string.IsNullOrWhiteSpace(_adminText);
+
+    void Send()
+    {
+        var users = SeedData.Users;
+
+        foreach (var u in users)
+        {
+            if (_sendToAll)
+            {
+                NotifSvc.AddNotification(_studentText, NotificationType.Announcement, u.Id);
+                NotifSvc.AddNotification(_adminText, NotificationType.Announcement, u.Id);
+            }
+            else
+            {
+                if (u is Student && !string.IsNullOrWhiteSpace(_studentText))
+                    NotifSvc.AddNotification(_studentText, NotificationType.Announcement, u.Id);
+
+                if (u is Admin && !string.IsNullOrWhiteSpace(_adminText))
+                    NotifSvc.AddNotification(_adminText, NotificationType.Announcement, u.Id);
+
+                if (u is Faculty && _sendToAll)
+                {
+                    NotifSvc.AddNotification(_studentText, NotificationType.Announcement, u.Id);
+                    NotifSvc.AddNotification(_adminText, NotificationType.Announcement, u.Id);
+                }
+            }
+        }
+
+        _message = "Broadcast sent successfully.";
+        _alert = AlertBox.AlertType.Success;
+
+        _studentText = "";
+        _adminText = "";
+        _sendToAll = false;
+    }
+}
+<style>
+    <style>
+    /* FORCE DARK TEXT THEME ONLY FOR THIS PAGE */
+
+    .card,
+    .card-body {
+        color: #ffffff;
+    }
+
+    .form-label,
+    .form-check-label,
+    h1, h2, h3, h4, h5, p {
+        color: #ffffff !important;
+    }
+
+    textarea.form-control,
+    input.form-control {
+        background-color: #121826;
+        color: #ffffff !important;
+        border: 1px solid #2a3345;
+    }
+
+    textarea.form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    textarea.form-control:focus,
+    input.form-control:focus {
+        background-color: #121826;
+        color: #ffffff !important;
+        border-color: #4c7dff;
+        box-shadow: 0 0 0 0.2rem rgba(76, 125, 255, 0.25);
+    }
+
+    .form-check-input {
+        background-color: #121826;
+        border-color: #2a3345;
+    }
+</style>
+</style>
