@@ -4,34 +4,35 @@ using EduConnect.Models;
 
 namespace EduConnect.Services
 {
-    /// <summary>
-    /// SRP: Maintains the current authenticated user state and broadcasts auth changes to the UI.
-    /// </summary>
     public class AuthStateService
     {
+        private readonly ApplicationDbContext _context;
         public AuthState State { get; private set; } = new();
         public event Action? OnAuthChanged;
 
-        public AuthStateService() { }
+        public AuthStateService(ApplicationDbContext context) 
+        { 
+            _context = context;
+        }
 
         public bool Login(string email, string password)
         {
-            var em = email.Trim();
-            var admin = SeedData.Users.OfType<Admin>().FirstOrDefault(a => a.Email == em && a.PasswordHash == password);
+            var em = email.Trim().ToLower();
+            var admin = _context.Admins.FirstOrDefault(a => a.Email.ToLower() == em && a.PasswordHash == password);
             if (admin != null)
             {
                 State.CurrentUser = admin;
                 OnAuthChanged?.Invoke();
                 return true;
             }
-            var faculty = SeedData.Users.OfType<Faculty>().FirstOrDefault(f => f.Email == em && f.PasswordHash == password);
+            var faculty = _context.Faculty.FirstOrDefault(f => f.Email.ToLower() == em && f.PasswordHash == password);
             if (faculty != null)
             {
                 State.CurrentUser = faculty;
                 OnAuthChanged?.Invoke();
                 return true;
             }
-            var student = SeedData.Users.OfType<Student>().FirstOrDefault(s => s.Email == em && s.PasswordHash == password);
+            var student = _context.Students.FirstOrDefault(s => s.Email.ToLower() == em && s.PasswordHash == password);
             if (student != null)
             {
                 State.CurrentUser = student;
